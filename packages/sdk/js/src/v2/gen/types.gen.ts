@@ -4450,6 +4450,7 @@ export type PluginInputChangedData = {
   body?: {
     sessionID: string
     text: string
+    currentMode: "normal" | "shell"
   }
   path?: never
   query?: {
@@ -4469,9 +4470,11 @@ export type PluginInputChangedError = PluginInputChangedErrors[keyof PluginInput
 
 export type PluginInputChangedResponses = {
   /**
-   * Plugins notified successfully
+   * Plugin response with optional mode switch
    */
-  200: boolean
+  200: {
+    mode?: "normal" | "shell"
+  }
 }
 
 export type PluginInputChangedResponse = PluginInputChangedResponses[keyof PluginInputChangedResponses]

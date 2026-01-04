@@ -208,11 +208,16 @@ export interface Hooks {
     output: { text: string },
   ) => Promise<void>
   /**
-   * Called when the TUI input text changes. Useful for plugins that want to
-   * observe user typing behavior (e.g., intent detection, analytics).
+   * Called when the TUI input text changes. Plugins can observe typing behavior
+   * and optionally request a mode switch by setting output.mode.
    *
    * - `input.sessionID`: Current session ID
    * - `input.text`: The current text in the TUI input
+   * - `input.currentMode`: The current input mode ("normal" | "shell")
+   * - `output.mode`: If set, switches the TUI to this mode
    */
-  "tui.input.changed"?: (input: { sessionID: string; text: string }, output: {}) => Promise<void>
+  "tui.input.changed"?: (
+    input: { sessionID: string; text: string; currentMode: "normal" | "shell" },
+    output: { mode?: "normal" | "shell" },
+  ) => Promise<void>
 }

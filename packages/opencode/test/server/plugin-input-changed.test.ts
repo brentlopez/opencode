@@ -8,7 +8,7 @@ const projectRoot = path.join(__dirname, "../..")
 Log.init({ print: false })
 
 describe("/plugin/input-changed", () => {
-  test("returns success when called with valid input", async () => {
+  test("returns success with mode object when called with valid input", async () => {
     await Instance.provide({
       directory: projectRoot,
       fn: async () => {
@@ -19,13 +19,13 @@ describe("/plugin/input-changed", () => {
         const response = await app.request("/plugin/input-changed", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionID: "test-session", text: "git status" }),
+          body: JSON.stringify({ sessionID: "test-session", text: "git status", currentMode: "normal" }),
         })
 
         // #then
         expect(response.status).toBe(200)
         const result = await response.json()
-        expect(result).toBe(true)
+        expect(typeof result).toBe("object")
       },
     })
   })
@@ -41,7 +41,7 @@ describe("/plugin/input-changed", () => {
         const response = await app.request("/plugin/input-changed", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: "git status" }),
+          body: JSON.stringify({ text: "git status", currentMode: "normal" }),
         })
 
         // #then
@@ -61,7 +61,47 @@ describe("/plugin/input-changed", () => {
         const response = await app.request("/plugin/input-changed", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionID: "test-session" }),
+          body: JSON.stringify({ sessionID: "test-session", currentMode: "normal" }),
+        })
+
+        // #then
+        expect(response.status).toBe(400)
+      },
+    })
+  })
+
+  test("returns 400 when currentMode is missing", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        // #given
+        const app = Server.App()
+
+        // #when
+        const response = await app.request("/plugin/input-changed", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionID: "test-session", text: "git status" }),
+        })
+
+        // #then
+        expect(response.status).toBe(400)
+      },
+    })
+  })
+
+  test("returns 400 when currentMode is invalid", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        // #given
+        const app = Server.App()
+
+        // #when
+        const response = await app.request("/plugin/input-changed", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionID: "test-session", text: "git status", currentMode: "invalid" }),
         })
 
         // #then

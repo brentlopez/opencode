@@ -2814,13 +2814,14 @@ export class Plugin extends HeyApiClient {
   /**
    * Notify plugins of input change
    *
-   * Fires the tui.input.changed hook to notify plugins when TUI input text changes.
+   * Fires the tui.input.changed hook to notify plugins when TUI input text changes. Plugins can optionally return a mode to switch to.
    */
   public inputChanged<ThrowOnError extends boolean = false>(
     parameters?: {
       directory?: string
       sessionID?: string
       text?: string
+      currentMode?: "normal" | "shell"
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -2832,6 +2833,7 @@ export class Plugin extends HeyApiClient {
             { in: "query", key: "directory" },
             { in: "body", key: "sessionID" },
             { in: "body", key: "text" },
+            { in: "body", key: "currentMode" },
           ],
         },
       ],

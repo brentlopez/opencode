@@ -2679,14 +2679,15 @@ export namespace Server {
         describeRoute({
           tags: ["Plugin"],
           summary: "Notify plugins of input change",
-          description: "Fires the tui.input.changed hook to notify plugins when TUI input text changes.",
+          description:
+            "Fires the tui.input.changed hook to notify plugins when TUI input text changes. Plugins can optionally return a mode to switch to.",
           operationId: "plugin.inputChanged",
           responses: {
             200: {
-              description: "Plugins notified successfully",
+              description: "Plugin response with optional mode switch",
               content: {
                 "application/json": {
-                  schema: resolver(z.boolean()),
+                  schema: resolver(z.object({ mode: z.enum(["normal", "shell"]).optional() })),
                 },
               },
             },
@@ -2698,12 +2699,14 @@ export namespace Server {
           z.object({
             sessionID: z.string(),
             text: z.string(),
+            currentMode: z.enum(["normal", "shell"]),
           }),
         ),
         async (c) => {
-          const { sessionID, text } = c.req.valid("json")
-          await Plugin.trigger("tui.input.changed", { sessionID, text }, {})
-          return c.json(true)
+          const { sessionID, text, currentMode } = c.req.valid("json")
+          const output: { mode?: "normal" | "shell" } = {}
+          await Plugin.trigger("tui.input.changed", { sessionID, text, currentMode }, output)
+          return c.json({ mode: output.mode })
         },
       )
       .route("/tui/control", TuiRoute)

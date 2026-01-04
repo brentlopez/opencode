@@ -770,8 +770,15 @@ export function Prompt(props: PromptProps) {
                   fetch(`${sdk.url}/plugin/input-changed`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ sessionID: props.sessionID, text: value }),
-                  }).catch(() => {})
+                    body: JSON.stringify({ sessionID: props.sessionID, text: value, currentMode: store.mode }),
+                  })
+                    .then((r) => r.json())
+                    .then((result: { mode?: "normal" | "shell" }) => {
+                      if (result.mode && result.mode !== store.mode) {
+                        setStore("mode", result.mode)
+                      }
+                    })
+                    .catch(() => {})
                 }
               }}
               keyBindings={textareaKeybindings()}
